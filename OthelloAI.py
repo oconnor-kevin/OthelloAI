@@ -141,11 +141,11 @@ class OthelloAI:
 		point = points[random_int]
 		return point[0]*8+point[1]
 
-    def toMatrix(self, json_string):
-        stringSquares = json_string['squares']
-        return np.matrix([stringSquares[i:i+8] for i in range(0, len(stringSquares), 8)])
-        
-    def countPieces(self, board, col):
+	def toMatrix(self, json_string):
+		stringSquares = json_string['squares']
+		return np.matrix([stringSquares[i:i+8] for i in range(0, len(stringSquares), 8)])
+	    
+	def countPieces(self, board, col):
 	    count = 0
 	    for i in range(0, 8):
 	        for j in range(0,8):
@@ -323,7 +323,7 @@ class OthelloAI:
 	            else:
 	                break
 
-            return board
+	        return board
 
 
 if __name__ == '__main__':
