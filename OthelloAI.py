@@ -38,11 +38,11 @@ class OthelloAI:
 			hisC = 'w'
 
 		# check to the right
-		if (col < size -3):
+		if (col < size -2):
 			if board[row, col+1] == hisC:
 				for i in range(col+2, size):
 					if board[row,i] == myC:
-						return True;
+						return True
 					elif board[row,i] == '-':
 						break
 
@@ -51,7 +51,7 @@ class OthelloAI:
 			if (board[row,col-1] == hisC):
 				for i in range(col-2, -1, -1):
 					if board[row,i] == myC:
-						return True;
+						return True
 					elif board[row,i] == '-':
 						break
 
@@ -65,18 +65,18 @@ class OthelloAI:
 						break
 
 		#check down
-		if (row < size -3):
+		if (row < size -2):
 			if board[row+1, col] == hisC:
 				for i in range(row+2, size):
 					if board[i,col] == myC:
-						return True;
+						return True
 					elif board[i,col] == '-':
 						break
 
 		#diagonal ne aka up and right
 
 		counter = 2
-		if (row > 1 and col < size - 3):
+		if (row > 1 and col < size - 2):
 			if board[row-1, col+1] == hisC:
 				for i in range(row-2, -1, -1):
 					if col+counter < size:
@@ -100,7 +100,7 @@ class OthelloAI:
 
 		#diagonal sw
 		counter = 2
-		if (row < size-3 and col > 1):
+		if (row < size-2 and col > 1):
 			if board[row+1, col-1] == hisC:
 				for i in range(row+2, size):
 					if col-counter >= 0:
@@ -112,7 +112,7 @@ class OthelloAI:
 
 		#diagonal se
 		counter = 2
-		if (row < size - 3 and col < size - 3):
+		if (row < size - 2 and col < size - 2):
 			if board[row+1, col+1] == hisC:
 				for i in range(row+2, size):
 					if col+counter < size:
