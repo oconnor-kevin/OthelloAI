@@ -13,7 +13,7 @@ import org.json.*;
 
 
 public class OthelloAI {
-    String[][] board = new String[8][8];
+    char[][] board = new char[8][8];
     String myColor;
     
     // Constructor
@@ -35,7 +35,7 @@ public class OthelloAI {
         int j = 0;
         
         for (int i = 0; i < length; i++){
-            ai.board[i][j] = squares.getString(i);
+            ai.board[i][j] = squares.getString(i).charAt(0);
             if (j == 7){ j = 0; }
             else { j++; }
         }
