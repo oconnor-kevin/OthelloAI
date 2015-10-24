@@ -1,17 +1,21 @@
-
-
-#!/usr/local/bin/python
+#!/usr/bin/python
 
 import numpy as np
 import json
 import sys
-from sys import argv
 import random
 
 ## Saving command line arguments
 # json_string = json.loads(argv[0])
 
 # mycolor = argv[1]
+
+
+## Saving command line arguments
+json_string = json.loads(sys.argv[2])
+mycolor = sys.argv[4]
+
+squ = json_string['squares']
 
 
 testBoard = np.matrix([['-', '-', '-', '-', 'w', '-', '-', '-'],
@@ -22,8 +26,6 @@ testBoard = np.matrix([['-', '-', '-', '-', 'w', '-', '-', '-'],
                    ['-', '-', '-', 'w', '-', '-', '-', 'w'],
                    ['-', '-', 'w', '-', '-', '-', '-', 'w'],
                    ['-', 'b', 'w', 'w', '-', '-', '-', '-']])
-
-
 
 
 class OthelloAI:
@@ -134,21 +136,16 @@ class OthelloAI:
 		return valid_points
 
 	def get_random_valid(self, board, myColor):
-		
 		points = self.get_valid_points(board, myColor) 
 		random_int = random.randint(0,len(points)-1)
 		point = points[random_int]
 		return point[0]*8+point[1]
 
-
-    ## Converting string of squares to matrix.
-
-	def toMatrix(self, json_string):
-		stringSquares = json_string['squares']
-		return [stringSquares[i:i+n] for i in range(0, len(stringSquares), 8)]
+    def toMatrix(self, json_string):
+        stringSquares = json_string['squares']
+        return np.matrix([stringSquares[i:i+8] for i in range(0, len(stringSquares), 8)])
         
-    
-	def countPieces(self, board, col):
+    def countPieces(self, board, col):
 	    count = 0
 	    for i in range(0, 8):
 	        for j in range(0,8):
@@ -326,11 +323,12 @@ class OthelloAI:
 	            else:
 	                break
 
-	        return board
+            return board
+
 
 if __name__ == '__main__':
-	oai = OthelloAI('black')
-	move = oai.get_random_valid(testBoard, "black")
+	oai = OthelloAI(mycolor)
+	move = oai.get_random_valid(oai.toMatrix(json_string), mycolor)
 	sys.exit(move)
 
 
