@@ -4,11 +4,14 @@
 
 import numpy as np
 import json
+import sys
 from sys import argv
+import random
 
 ## Saving command line arguments
-json_string = json.loads(argv[0])
-mycolor = argv[1]
+# json_string = json.loads(argv[0])
+
+# mycolor = argv[1]
 
 
 testBoard = np.matrix([['-', '-', '-', '-', 'w', '-', '-', '-'],
@@ -26,8 +29,6 @@ testBoard = np.matrix([['-', '-', '-', '-', 'w', '-', '-', '-'],
 class OthelloAI:
 	def __init__(self, color):
 		self.color = color
-
-    
 
 	def check_if_valid(self, board, row, col, myColor):
 		size = 8
@@ -123,205 +124,213 @@ class OthelloAI:
 					counter += 1
 		return False
 
+	def get_valid_points(self,board, myColor):
+		valid_points = []
+		for row in range(8):
+			for col in range(8):
+				if board[row, col] == '-':
+					if self.check_if_valid(board, row, col, myColor):
+						valid_points.append((row,col))
+		return valid_points
+
+	def get_random_valid(self, board, myColor):
+		
+		points = self.get_valid_points(board, myColor) 
+		random_int = random.randint(0,len(points)-1)
+		point = points[random_int]
+		return point[0]*8+point[1]
 
 
+    ## Converting string of squares to matrix.
 
-        ## Converting string of squares to matrix.
-        def toMatrix(self, json_string):
-            stringSquares = json_string['squares']
-            return [stringSquares[i:i+n] for i in range(0, len(stringSquares), 8)]
+	def toMatrix(self, json_string):
+		stringSquares = json_string['squares']
+		return [stringSquares[i:i+n] for i in range(0, len(stringSquares), 8)]
         
     
-        def countPieces(self, board, col):
-            count = 0
-            for i in range(0, 8):
-                for j in range(0,8):
-                    if board[i,j] == col:
-                        count+= 1
-            return count
+	def countPieces(self, board, col):
+	    count = 0
+	    for i in range(0, 8):
+	        for j in range(0,8):
+	            if board[i,j] == col:
+	            	count+= 1
+	    return count
 
 
-        def flipPieces(self, board, move, myColChar):
-            row = move[0]
-            col = move[1]
-            
-            board[row, col] = myColChar
-    
-            if myColChar == 'b':
-                enemyColChar = 'w'
-            elif myColChar == 'w':
-                enemyColChar = 'b'
-    
-            if row <= 7 and row >= 0 and col <= 7 and col >= 0:
-        
-                #Checking above the move.
-                refRow = row - 1
-                refCol = col
-                willFlip = False
-        
-                while refRow >= 0 and refRow <= 7:
-                    if board[refRow, refCol] == enemyColChar:
-                        willFlip = True
-                        refRow -= 1
-                    elif board[refRow, refCol] == myColChar and willFlip:
-                        refRow += 1
-                        while refRow < row:
-                            board[refRow, refCol] = myColChar
-                            refRow += 1
-                        break
-                    else:
-                        break
-        
-                #Checking below the move.
-                willFlip = False
-                refRow = row+1
-                refCol = col
-        
-                while refRow <= 7 and refRow >= 0:
-                    if board[refRow, refCol] == enemyColChar:
-                        willFlip = True
-                        refRow += 1
-                    elif board[refRow, refCol] == myColChar and willFlip:
-                        refRow -= 1
-                        while refRow > row:
-                            board[refRow, refCol] = myColChar
-                            refRow -= 1
-                        break
-                    else:
-                        break
-    
-                #Checking left of the move.
-                willFlip = False
-                refRow = row
-                refCol = col - 1
-        
-                while refCol >= 0 and refCol <= 7:
-                    if board[refRow, refCol] == enemyColChar:
-                        willFlip = True
-                        refCol -= 1
-                    elif board[refRow, refCol] == myColChar and willFlip:
-                        refCol += 1
-                        while refCol < col:
-                            board[refRow, refCol] = myColChar
-                            refCol += 1
-                        break
-                    else:
-                        break
+	def flipPieces(self, board, move, myColChar):
+	    row = move[0]
+	    col = move[1]
+	    
+	    board[row, col] = myColChar
 
-                #Checking right of the move.
-                willFlip = False
-                refRow = row
-                refCol = col+1
-        
-                while refCol <= 7 and refCol >= 0:
-                    if board[refRow, refCol] == enemyColChar:
-                        willFlip = True
-                        refCol += 1
-                    elif board[refRow, refCol] == myColChar and willFlip:
-                        refCol -= 1
-                        while refCol > col:
-                            board[refRow, refCol] = myColChar
-                            refCol -= 1
-                        break
-                    else:
-                        break
+	    if myColChar == 'b':
+	        enemyColChar = 'w'
+	    elif myColChar == 'w':
+	        enemyColChar = 'b'
 
-                #Checking Nortwest diagonal.
-                willFlip = False
-                refRow = row-1
-                refCol = col-1
-        
-                while refRow >= 0 and refCol >= 0 and refRow <= 7 and refCol <= 7:
-                    if board[refRow, refCol] == enemyColChar:
-                        willFlip = True
-                        refCol -= 1
-                        refRow -= 1
-                    elif board[refRow, refCol] == myColChar and willFlip:
-                        refCol += 1
-                        refRow += 1
-                        while refCol < col and refRow < row:
-                            board[refRow, refCol] = myColChar
-                            refCol += 1
-                            refRow += 1
-                        break
-                    else:
-                        break
+	    if row <= 7 and row >= 0 and col <= 7 and col >= 0:
 
-                #Checking Northeast diagonal.
-                willFlip = False
-                refRow = row-1
-                refCol = col+1
-        
-                while refRow >= 0 and refCol <= 7 and refRow <= 7 and refCol >= 0:
-                    if board[refRow, refCol] == enemyColChar:
-                        willFlip = True
-                        refCol += 1
-                        refRow -= 1
-                    elif board[refRow, refCol] == myColChar and willFlip:
-                        refCol -= 1
-                        refRow += 1
-                        while refCol > col and refRow < row:
-                            board[refRow, refCol] = myColChar
-                            refCol -= 1
-                            refRow += 1
-                        break
-                    else:
-                        break
+	        #Checking above the move.
+	        refRow = row - 1
+	        refCol = col
+	        willFlip = False
 
-                #Checking Southeast diagonal.
-                willFlip = False
-                refRow = row + 1
-                refCol = col + 1
-        
-                while refRow <= 7 and refCol <= 7 and refRow >= 0 and refCol >= 0:
-                    if board[refRow, refCol] == enemyColChar:
-                        willFlip = True
-                        refCol += 1
-                        refRow += 1
-                    elif board[refRow, refCol] == myColChar and willFlip:
-                        refCol -= 1
-                        refRow -= 1
-                        while refCol > col and refRow > row:
-                            board[refRow, refCol] = myColChar
-                            refCol -= 1
-                            refRow -= 1
-                        break
-                    else:
-                        break
+	        while refRow >= 0 and refRow <= 7:
+	            if board[refRow, refCol] == enemyColChar:
+	                willFlip = True
+	                refRow -= 1
+	            elif board[refRow, refCol] == myColChar and willFlip:
+	                refRow += 1
+	                while refRow < row:
+	                    board[refRow, refCol] = myColChar
+	                    refRow += 1
+	                break
+	            else:
+	                break
 
-                #Checking Southwest diagonal.
-                willFlip = False
-                refRow = row+1
-                refCol = col-1
-        
-                while refRow <= 7 and refCol >= 0 and refRow >= 0 and refCol <= 7:
-                    if board[refRow, refCol] == enemyColChar:
-                        willFlip = True
-                        refCol -= 1
-                        refRow += 1
-                    elif board[refRow, refCol] == myColChar and willFlip:
-                        refCol += 1
-                        refRow -= 1
-                        while refCol < col and refRow > row:
-                            board[refRow, refCol] = myColChar
-                            refCol += 1
-                            refRow -= 1
-                        break
-                    else:
-                        break
+	        #Checking below the move.
+	        willFlip = False
+	        refRow = row+1
+	        refCol = col
 
-                return board
+	        while refRow <= 7 and refRow >= 0:
+	            if board[refRow, refCol] == enemyColChar:
+	                willFlip = True
+	                refRow += 1
+	            elif board[refRow, refCol] == myColChar and willFlip:
+	                refRow -= 1
+	                while refRow > row:
+	                    board[refRow, refCol] = myColChar
+	                    refRow -= 1
+	                break
+	            else:
+	                break
 
+	        #Checking left of the move.
+	        willFlip = False
+	        refRow = row
+	        refCol = col - 1
 
+	        while refCol >= 0 and refCol <= 7:
+	            if board[refRow, refCol] == enemyColChar:
+	                willFlip = True
+	                refCol -= 1
+	            elif board[refRow, refCol] == myColChar and willFlip:
+	                refCol += 1
+	                while refCol < col:
+	                    board[refRow, refCol] = myColChar
+	                    refCol += 1
+	                break
+	            else:
+	                break
 
+	        #Checking right of the move.
+	        willFlip = False
+	        refRow = row
+	        refCol = col+1
 
+	        while refCol <= 7 and refCol >= 0:
+	            if board[refRow, refCol] == enemyColChar:
+	                willFlip = True
+	                refCol += 1
+	            elif board[refRow, refCol] == myColChar and willFlip:
+	                refCol -= 1
+	                while refCol > col:
+	                    board[refRow, refCol] = myColChar
+	                    refCol -= 1
+	                break
+	            else:
+	                break
 
-oai = OthelloAI("black")
-move = (5,0)
+	        #Checking Nortwest diagonal.
+	        willFlip = False
+	        refRow = row-1
+	        refCol = col-1
 
-return 0
+	        while refRow >= 0 and refCol >= 0 and refRow <= 7 and refCol <= 7:
+	            if board[refRow, refCol] == enemyColChar:
+	                willFlip = True
+	                refCol -= 1
+	                refRow -= 1
+	            elif board[refRow, refCol] == myColChar and willFlip:
+	                refCol += 1
+	                refRow += 1
+	                while refCol < col and refRow < row:
+	                    board[refRow, refCol] = myColChar
+	                    refCol += 1
+	                    refRow += 1
+	                break
+	            else:
+	                break
 
+	        #Checking Northeast diagonal.
+	        willFlip = False
+	        refRow = row-1
+	        refCol = col+1
 
+	        while refRow >= 0 and refCol <= 7 and refRow <= 7 and refCol >= 0:
+	            if board[refRow, refCol] == enemyColChar:
+	                willFlip = True
+	                refCol += 1
+	                refRow -= 1
+	            elif board[refRow, refCol] == myColChar and willFlip:
+	                refCol -= 1
+	                refRow += 1
+	                while refCol > col and refRow < row:
+	                    board[refRow, refCol] = myColChar
+	                    refCol -= 1
+	                    refRow += 1
+	                break
+	            else:
+	                break
 
+	        #Checking Southeast diagonal.
+	        willFlip = False
+	        refRow = row + 1
+	        refCol = col + 1
+
+	        while refRow <= 7 and refCol <= 7 and refRow >= 0 and refCol >= 0:
+	            if board[refRow, refCol] == enemyColChar:
+	                willFlip = True
+	                refCol += 1
+	                refRow += 1
+	            elif board[refRow, refCol] == myColChar and willFlip:
+	                refCol -= 1
+	                refRow -= 1
+	                while refCol > col and refRow > row:
+	                    board[refRow, refCol] = myColChar
+	                    refCol -= 1
+	                    refRow -= 1
+	                break
+	            else:
+	                break
+
+	        #Checking Southwest diagonal.
+	        willFlip = False
+	        refRow = row+1
+	        refCol = col-1
+
+	        while refRow <= 7 and refCol >= 0 and refRow >= 0 and refCol <= 7:
+	            if board[refRow, refCol] == enemyColChar:
+	                willFlip = True
+	                refCol -= 1
+	                refRow += 1
+	            elif board[refRow, refCol] == myColChar and willFlip:
+	                refCol += 1
+	                refRow -= 1
+	                while refCol < col and refRow > row:
+	                    board[refRow, refCol] = myColChar
+	                    refCol += 1
+	                    refRow -= 1
+	                break
+	            else:
+	                break
+
+	        return board
+
+if __name__ == '__main__':
+	oai = OthelloAI('black')
+	move = oai.get_random_valid(testBoard, "black")
+	sys.exit(move)
 
 
