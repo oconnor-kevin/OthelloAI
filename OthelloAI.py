@@ -162,8 +162,12 @@ class OthelloAI:
 		differentials = {}
 		defense = {}
 		scores = {}
+		gained_pts = {}
 		max_diff = 0
 		min_diff = 0
+
+		max_pt = 0
+		min_pt = 0
 		for move in validMoves:
 		    tempBoard = self.flipPieces(board, move, myColor)
 		    my_valid_points = self.get_valid_points(tempBoard, myColor)
@@ -178,10 +182,19 @@ class OthelloAI:
 		    		defense[move] = 1
 		    		break
 
+		    ct = countPieces(self, board, myColor)
+		    gained_pts[move] = ct
+		    if ct > max_pt: 
+		    	max_pt = ct
+		    elif ct < min_pt:
+		    	min_pt = ct
+
 		for move in validMoves:
 			if max_diff-min_diff != 0:
 				differentials[move] = differentials[move] / float(max_diff-min_diff)
-			scores[move] = differentials[move] + defense[move] + (evaluation[move[0], move[1]]/float(100))
+			if (max_pt - min_pt) != 0:
+				gained_pts[move] = gained_pts[move] / float(max_pt-min_pt)
+			scores[move] = differentials[move] + defense[move] + (evaluation[move[0], move[1]]/float(100)) + gained_pts[move]
 
 
 		pt = max(scores, key=scores.get)
@@ -191,7 +204,12 @@ class OthelloAI:
 		stringSquares = json_string['squares']
 		return np.matrix([stringSquares[i:i+8] for i in range(0, len(stringSquares), 8)])
 	    
-	def countPieces(self, board, col):
+	def countPieces(self, board, myColor):
+	    if myColor == 'black':
+	    	col = 'b'
+	    else:
+	    	col = 'w'
+
 	    count = 0
 	    for i in range(0, 8):
 	        for j in range(0,8):
