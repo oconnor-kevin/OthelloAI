@@ -5,11 +5,6 @@ import json
 import sys
 import random
 
-## Saving command line arguments
-# json_string = json.loads(argv[0])
-
-# mycolor = argv[1]
-
 
 ## Saving command line arguments
 json_string = json.loads(sys.argv[2])
@@ -141,6 +136,47 @@ class OthelloAI:
 		point = points[random_int]
 		return point[0]*8+point[1]
 
+	evaluation = np.matrix([
+		[99, -8, 8, 6, 6, 8, -8, 99],
+		[-8, -24, -4, -3, -3, -4, -24, -8],
+		[8, -4, 7, 4, 4, 7, -4, 8],
+		[6, -3, 4, 0, 0, 4, -3, 6],
+		[6, -3, 4, 0, 0, 4, -3, 6],
+		[8, -4, 7, 4, 4, 7, -4, 8],
+		[-8, -24, -4, -3, -3, -4, -24, -8],
+		[99, -8, 8, 6, 6, 8, -8, 99]])
+
+	def pickMove(self, board, myColor):
+
+		validMoves = self.get_valid_points(board, myColor)
+		for move in validMoves:
+			# if it's a corner, take it.
+			if move == (0,0) or move == (7, 0) or move == (7, 7) or move == (0, 7):
+				return move[0]*8 + move[1]
+
+		if myColor == "black":
+			enemyCol = "white"
+		else:
+		    enemyCol = "black"
+
+		moveScores = {}
+		for move in validMoves:
+		    tempBoard = self.flipPieces(board, move, myColor)
+		    my_valid_points = self.get_valid_points(tempBoard, myColor)
+		    his_valid_points = self.get_valid_points(tempBoard, enemyCol)
+		    moveScores[move] = len(my_valid_points) - len(his_valid_points)
+
+
+		    moveScores[move] += 3
+		    for his_move in his_valid_points:
+		    	if his_move == (0,0) or his_move == (7, 0) or his_move == (7, 7) or his_move == (0, 7):
+		    		moveScores[move] -= 6
+		    		break
+
+            	
+
+		return max(moveScores, key=moveScores.get)
+
 	def toMatrix(self, json_string):
 		stringSquares = json_string['squares']
 		return np.matrix([stringSquares[i:i+8] for i in range(0, len(stringSquares), 8)])
@@ -153,17 +189,18 @@ class OthelloAI:
 	            	count+= 1
 	    return count
 
-
-	def flipPieces(self, board, move, myColChar):
+	def flipPieces(self, board, move, myColor):
 	    row = move[0]
 	    col = move[1]
 	    
-	    board[row, col] = myColChar
+	    if myColor == 'black':
+	    	myColChar = 'b'
+	    	enemyColChar = 'w'
+	    else:
+	    	myColChar = 'w'
+	    	enemyColChar = 'b'
 
-	    if myColChar == 'b':
-	        enemyColChar = 'w'
-	    elif myColChar == 'w':
-	        enemyColChar = 'b'
+	    board[row, col] = myColChar
 
 	    if row <= 7 and row >= 0 and col <= 7 and col >= 0:
 
@@ -328,7 +365,8 @@ class OthelloAI:
 
 if __name__ == '__main__':
 	oai = OthelloAI(mycolor)
-	move = oai.get_random_valid(oai.toMatrix(json_string), mycolor)
+	# print oai.pickMove(testBoard, "black")
+	move = oai.pickMove(oai.toMatrix(json_string), mycolor)
 	sys.exit(move)
 
 
