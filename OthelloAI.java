@@ -22,7 +22,7 @@ public class OthelloAI {
     }
     
     
-    public static void main(String[] args){
+    public static int main(String[] args){
         // Create OthelloAI object with given color and instantiate empty board.
         OthelloAI ai = new OthelloAI(args[1]);
         
@@ -40,6 +40,10 @@ public class OthelloAI {
             else { j++; }
         }
         
+        
+        System.out.println(ai.board[5][6]);
+       
+        return 0;
     }
     
     
