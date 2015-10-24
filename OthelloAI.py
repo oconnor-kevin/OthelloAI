@@ -15,11 +15,11 @@ squ = json_string['squares']
 
 testBoard = np.matrix([['-', '-', '-', '-', 'w', '-', '-', '-'],
                    ['w', '-', '-', 'w', '-', '-', '-', 'b'],
-                   ['-', '-', 'w', 'w', '-', '-', 'w', 'w'],
-                   ['b', '-', '-', '-', '-', 'w', '-', 'w'],
+                   ['-', '-', 'w', 'w', 'b', '-', 'w', 'w'],
+                   ['b', '-', '-', '-', 'b', 'w', '-', 'w'],
                    ['-', '-', '-', '-', 'w', '-', '-', 'w'],
                    ['-', '-', '-', 'w', '-', '-', '-', 'w'],
-                   ['-', '-', 'w', '-', '-', '-', '-', 'w'],
+                   ['-', '-', 'w', '-', '-', '-', '-', '-'],
                    ['-', 'b', 'w', 'w', '-', '-', '-', '-']])
 
 
@@ -136,17 +136,17 @@ class OthelloAI:
 		point = points[random_int]
 		return point[0]*8+point[1]
 
-	evaluation = np.matrix([
-		[99, -8, 8, 6, 6, 8, -8, 99],
-		[-8, -24, -4, -3, -3, -4, -24, -8],
-		[8, -4, 7, 4, 4, 7, -4, 8],
-		[6, -3, 4, 0, 0, 4, -3, 6],
-		[6, -3, 4, 0, 0, 4, -3, 6],
-		[8, -4, 7, 4, 4, 7, -4, 8],
-		[-8, -24, -4, -3, -3, -4, -24, -8],
-		[99, -8, 8, 6, 6, 8, -8, 99]])
 
 	def pickMove(self, board, myColor):
+		evaluation = np.matrix([
+			[99, -8, 8, 6, 6, 8, -8, 99],
+			[-8, -24, -4, -3, -3, -4, -24, -8],
+			[8, -4, 7, 4, 4, 7, -4, 8],
+			[6, -3, 4, 0, 0, 4, -3, 6],
+			[6, -3, 4, 0, 0, 4, -3, 6],
+			[8, -4, 7, 4, 4, 7, -4, 8],
+			[-8, -24, -4, -3, -3, -4, -24, -8],
+			[99, -8, 8, 6, 6, 8, -8, 99]])
 
 		validMoves = self.get_valid_points(board, myColor)
 		for move in validMoves:
@@ -159,23 +159,33 @@ class OthelloAI:
 		else:
 		    enemyCol = "black"
 
-		moveScores = {}
+		differentials = {}
+		defense = {}
+		scores = {}
+		max_diff = 0
+		min_diff = 0
 		for move in validMoves:
 		    tempBoard = self.flipPieces(board, move, myColor)
 		    my_valid_points = self.get_valid_points(tempBoard, myColor)
 		    his_valid_points = self.get_valid_points(tempBoard, enemyCol)
-		    moveScores[move] = len(my_valid_points) - len(his_valid_points)
+		    diff = len(my_valid_points) - len(his_valid_points)
+		    differentials[move] = diff
 
 
-		    moveScores[move] += 3
+		    defense[move] = 0 
 		    for his_move in his_valid_points:
 		    	if his_move == (0,0) or his_move == (7, 0) or his_move == (7, 7) or his_move == (0, 7):
-		    		moveScores[move] -= 6
+		    		defense[move] = 1
 		    		break
 
-            	
+		for move in validMoves:
+			if max_diff-min_diff != 0:
+				differentials[move] = differentials[move] / float(max_diff-min_diff)
+			scores[move] = differentials[move] + defense[move] + (evaluation[move[0], move[1]]/float(100))
 
-		return max(moveScores, key=moveScores.get)
+
+		pt = max(scores, key=scores.get)
+		return pt[0]*8 + pt[1]
 
 	def toMatrix(self, json_string):
 		stringSquares = json_string['squares']
